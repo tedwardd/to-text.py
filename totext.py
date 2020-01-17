@@ -35,6 +35,7 @@ parser.add_argument('-o', '--original', help="Dont parse contents with readabili
 parser.add_argument('-f', '--forcedownload', 
     help="Force download even if file seems to be something else than text based on the content-type header.", 
     default=False, action="store_true")
+parser.add_argument('--nosave', help="Do not write output to disk", action="store_true")
 args = vars(parser.parse_args())
 
 class mockResponse(object):
@@ -281,11 +282,13 @@ else:
             text = "Parsing with Readability failed. Original content:\n\n"
             text += str(convert_doc_to_text(doc.content()))
     title = doc.short_title().encode('utf-8').strip()
-    filename = save_doc(text, title[:150], args['url'])
+    if not args['nosave']:
+        filename = save_doc(text, title[:150], args['url'])
     if not args['noprint']:
         print("\n\n========================\n\n") 
         print("# " + title)
         print("Source URL: " + args['url'])
         print("\n")
         print(text)
-        print("file saved as " + filename)
+        if not args['nosave']:
+            print("file saved as " + filename)
