@@ -35,6 +35,7 @@ parser.add_argument('-o', '--original', help="Dont parse contents with readabili
 parser.add_argument('-f', '--forcedownload', 
     help="Force download even if file seems to be something else than text based on the content-type header.", 
     default=False, action="store_true")
+parser.add_argument('--outpath', help="Custom output path", default="saved/")
 args = vars(parser.parse_args())
 
 class mockResponse(object):
@@ -194,14 +195,15 @@ def convert_doc_to_text(doc_summary):
     
 def save_doc(text, title, url, rssDate=0):
     hostname = urlparse(url).hostname
-    if not os.path.exists("saved/" + hostname):
-        os.makedirs("saved/" + hostname)
+    outpath = args['outpath'] + "/"
+    if not os.path.exists(outpath + hostname):
+        os.makedirs(outpath + hostname)
     filename = re.sub(r'[^A-Za-z0-9]', '_', title)
     if rssDate:
         posttime = datetime.fromtimestamp(mktime(rssDate)).strftime("%Y%m%dT%H%M")
     else:
         posttime = datetime.now().strftime("%Y%m%dT%H%M")
-    filename = "saved/" + hostname + "/" + posttime + "_" + filename + ".txt"
+    filename = outpath + hostname + "/" + posttime + "_" + filename + ".txt"
     if not os.path.exists(filename):
         with open(filename, "w") as textfile:
             textfile.write("# " + title)
@@ -212,12 +214,13 @@ def save_doc(text, title, url, rssDate=0):
     return filename
 
 def save_gophermap(text, title, server, gophertype, filename, gopherport):
-    if not os.path.exists("saved/" + server):
-        os.makedirs("saved/" + server)
+    outpath = args['outpath']
+    if not os.path.exists(outpath + server):
+        os.makedirs(outpath + server)
     posttime = datetime.now().strftime("%Y%m%dT%H%M")
-    if not os.path.exists("saved/" + server + "/" + posttime):
-        os.makedirs("saved/" + server + "/" + posttime)
-    gmfile = "saved/" + server + "/" + posttime + "/gophermap"
+    if not os.path.exists(outpath + server + "/" + posttime):
+        os.makedirs(outpath + server + "/" + posttime)
+    gmfile = outpath + server + "/" + posttime + "/gophermap"
     if not os.path.exists(gmfile):
         with open(gmfile, "w") as gophermap:
             gophermap.write("i\t/\tlocalhost\t70\n")
